@@ -47,7 +47,7 @@ runs:
       run: |
         wget \
           https://raw.githubusercontent.com/lfit/releng-nexus-upload/main/nexus-upload.sh
-        chmod a+x nexus-upload.sh
+        chmod a+x ./nexus-upload.sh
       shell: bash
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
@@ -70,7 +70,8 @@ runs:
       env:
         NEXUS_USERNAME: ${{ inputs.nexus_username }}
         NEXUS_PASSWORD: ${{ inputs.nexus_password }}
-        NEXUS_SERVER: ${{ inputs.nexus_username }}
+        NEXUS_SERVER: ${{ inputs.nexus_server }}
+        NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
         FILE_EXTENSION: ${{ inputs.file_extenstion }}
         UPLOAD_DIRECTORY: ${{ inputs.upload_directory }}
         REPOSITORY_FORMAT: ${{ inputs.repository_format }}
@@ -78,7 +79,7 @@ runs:
     - name: "Uploading to Nexus"
       id: nexus-upload
       run: |
-        nexus-upload.sh
+        ./nexus-upload.sh
         if [ "$?" -eq 0 ]l then
           echo "status=success" >> "$GITHUB_OUTPUT"
         else
