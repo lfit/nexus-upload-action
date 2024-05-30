@@ -3,29 +3,29 @@
 # Copyright 2024 The Linux Foundation <matthew.watkins@linuxfoundation.org>
 
 name: "Nexus Upload"
-description: 'Nexus Upload Action'
+description: "Nexus Upload Action"
 
 inputs:
   nexus_username:
-    description: 'Nexus username'
+    description: "Nexus username"
     required: true
   nexus_password:
-    description: 'Nexus user password'
+    description: "Nexus user password"
     required: true
   nexus_server:
-    description: 'Nexus server name'
+    description: "Nexus server name"
     required: true
   nexus_repository:
-    description: 'Nexus repository name'
+    description: "Nexus repository name"
     required: true
   file_extension:
-    description: 'File extension to match'
+    description: "File extension to match"
     required: false
   upload_directory:
-    description: 'Directory containing files to upload'
+    description: "Directory containing files to upload"
     required: false
   repository_format:
-    description: 'Nexus repository format'
+    description: "Nexus repository format"
     required: false
 
 outputs:
@@ -36,7 +36,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-
     - name: "Set GitHub Path"
       run: echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
       shell: bash
@@ -47,7 +46,7 @@ runs:
       run: |
         wget \
           https://raw.githubusercontent.com/lfit/releng-nexus-upload/main/nexus-upload.sh
-        chmod a+x nexus-upload.sh
+        chmod a+x ./nexus-upload.sh
       shell: bash
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
@@ -70,7 +69,8 @@ runs:
       env:
         NEXUS_USERNAME: ${{ inputs.nexus_username }}
         NEXUS_PASSWORD: ${{ inputs.nexus_password }}
-        NEXUS_SERVER: ${{ inputs.nexus_username }}
+        NEXUS_SERVER: ${{ inputs.nexus_server }}
+        NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
         FILE_EXTENSION: ${{ inputs.file_extenstion }}
         UPLOAD_DIRECTORY: ${{ inputs.upload_directory }}
         REPOSITORY_FORMAT: ${{ inputs.repository_format }}
@@ -78,7 +78,7 @@ runs:
     - name: "Uploading to Nexus"
       id: nexus-upload
       run: |
-        nexus-upload.sh
+        ./nexus-upload.sh
         if [ "$?" -eq 0 ]l then
           echo "status=success" >> "$GITHUB_OUTPUT"
         else

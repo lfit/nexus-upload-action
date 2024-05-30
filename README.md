@@ -6,20 +6,22 @@ Relies on the script located in the repository here:
 
 <https://github.com/lfit/releng-nexus-upload>
 
-**Required inputs**
+## inputs/Outputs
+
+**Required inputs:**
 
 - nexus_username
 - nexus_password
 - nexus_server
 - nexus_repository
 
-**Optional inputs**
+**Optional inputs:**
 
 - file_extension
 - upload_directory
 - repository_format
 
-**Outputs**
+**Outputs:**
 
 - upload-status [ success | failure ]
 
