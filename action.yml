@@ -71,7 +71,7 @@ runs:
         NEXUS_PASSWORD: ${{ inputs.nexus_password }}
         NEXUS_SERVER: ${{ inputs.nexus_server }}
         NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
-        FILE_EXTENSION: ${{ inputs.file_extenstion }}
+        FILE_EXTENSION: ${{ inputs.file_extension }}
         DIRECTORY: ${{ inputs.directory }}
         REPOSITORY_FORMAT: ${{ inputs.repository_format }}
 
@@ -98,6 +98,6 @@ runs:
         NEXUS_PASSWORD: ${{ inputs.nexus_password }}
         NEXUS_SERVER: ${{ inputs.nexus_server }}
         NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
-        FILE_EXTENSION: ${{ inputs.file_extenstion }}
+        FILE_EXTENSION: ${{ inputs.file_extension }}
         DIRECTORY: ${{ inputs.directory }}
         REPOSITORY_FORMAT: ${{ inputs.repository_format }}
