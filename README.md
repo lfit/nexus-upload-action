@@ -21,7 +21,7 @@ Relies on the script located in the repository here:
 
 **Outputs**
 
-- upload-status
+- upload-status [ success | failure ]
 
 ## Usage Example
 
