@@ -86,10 +86,10 @@ runs:
         fi
       shell: bash
       env:
-      NEXUS_USERNAME: ${{ inputs.nexus_username }}
-      NEXUS_PASSWORD: ${{ inputs.nexus_password }}
-      NEXUS_SERVER: ${{ inputs.nexus_server }}
-      NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
-      FILE_EXTENSION: ${{ inputs.file_extenstion }}
-      DIRECTORY: ${{ inputs.directory }}
-      REPOSITORY_FORMAT: ${{ inputs.repository_format }}
+        NEXUS_USERNAME: ${{ inputs.nexus_username }}
+        NEXUS_PASSWORD: ${{ inputs.nexus_password }}
+        NEXUS_SERVER: ${{ inputs.nexus_server }}
+        NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
+        FILE_EXTENSION: ${{ inputs.file_extenstion }}
+        DIRECTORY: ${{ inputs.directory }}
+        REPOSITORY_FORMAT: ${{ inputs.repository_format }}
