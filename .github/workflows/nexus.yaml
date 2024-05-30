@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: "Nexus Upload"
-        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.0.6
+        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.0.7
         with:
           nexus_server: nexus3.o-ran-sc.org
           nexus_username: admin
