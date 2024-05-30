@@ -1,0 +1,87 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2024 The Linux Foundation <matthew.watkins@linuxfoundation.org>
+
+name: "Nexus Upload"
+description: 'Nexus Upload Action'
+
+inputs:
+  nexus_username:
+    description: 'Nexus username'
+    required: true
+  nexus_password:
+    description: 'Nexus user password'
+    required: true
+  nexus_server:
+    description: 'Nexus server name'
+    required: true
+  nexus_repository:
+    description: 'Nexus repository name'
+    required: true
+  file_extension:
+    description: 'File extension to match'
+    required: false
+  upload_directory:
+    description: 'Directory containing files to upload'
+    required: false
+  repository_format:
+    description: 'Nexus repository format'
+    required: false
+
+outputs:
+  upload-status:
+    description: "Upload status"
+    value: ${{ steps.nexus-upload.outputs.status }}
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Set GitHub Path"
+      run: echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+
+    - name: "Retrieve shell script"
+      run: |
+        wget \
+          https://raw.githubusercontent.com/lfit/releng-nexus-upload/main/nexus-upload.sh
+        chmod a+x nexus-upload.sh
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+
+    - name: "Display inputs"
+      run: |
+        echo "Nexus username: $NEXUS_USERNAME"
+        echo "Nexus server: $NEXUS_SERVER"
+        echo "Nexus repository: $NEXUS_REPOSITORY"
+        if [ -z "$FILE_EXTENSION" ]; then
+          echo "Files to match: *$FILE_EXTENSION"
+        fi
+        if [ -z "$UPLOAD_DIRECTORY" ]; then
+          echo "Folder to upload: $UPLOAD_DIRECTORY"
+        fi
+        if [ -z "$REPOSITORY_FORMAT" ]; then
+          echo "Repository format: $REPOSITORY_FORMAT"
+        fi
+      shell: bash
+      env:
+        NEXUS_USERNAME: ${{ inputs.nexus_username }}
+        NEXUS_PASSWORD: ${{ inputs.nexus_password }}
+        NEXUS_SERVER: ${{ inputs.nexus_username }}
+        FILE_EXTENSION: ${{ inputs.file_extenstion }}
+        UPLOAD_DIRECTORY: ${{ inputs.upload_directory }}
+        REPOSITORY_FORMAT: ${{ inputs.repository_format }}
+
+    - name: "Uploading to Nexus"
+      id: nexus-upload
+      run: |
+        nexus-upload.sh
+        if [ "$?" -eq 0 ]l then
+          echo "status=success" >> "$GITHUB_OUTPUT"
+        else
+          echo "status=failure" >> "$GITHUB_OUTPUT"
+        fi
+      shell: bash
