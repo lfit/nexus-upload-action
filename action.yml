@@ -21,7 +21,7 @@ inputs:
   file_extension:
     description: "File extension to match"
     required: false
-  upload_directory:
+  directory:
     description: "Directory containing files to upload"
     required: false
   repository_format:
@@ -59,8 +59,8 @@ runs:
         if [ -z "$FILE_EXTENSION" ]; then
           echo "Files to match: *$FILE_EXTENSION"
         fi
-        if [ -z "$UPLOAD_DIRECTORY" ]; then
-          echo "Folder to upload: $UPLOAD_DIRECTORY"
+        if [ -z "$DIRECTORY" ]; then
+          echo "Folder to upload: $DIRECTORY"
         fi
         if [ -z "$REPOSITORY_FORMAT" ]; then
           echo "Repository format: $REPOSITORY_FORMAT"
@@ -72,16 +72,24 @@ runs:
         NEXUS_SERVER: ${{ inputs.nexus_server }}
         NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
         FILE_EXTENSION: ${{ inputs.file_extenstion }}
-        UPLOAD_DIRECTORY: ${{ inputs.upload_directory }}
+        DIRECTORY: ${{ inputs.directory }}
         REPOSITORY_FORMAT: ${{ inputs.repository_format }}
 
     - name: "Uploading to Nexus"
       id: nexus-upload
       run: |
-        ./nexus-upload.sh
+        ./nexus-upload.sh -u https://$NEXUS_SERVER/repository/$NEXUS_REPOSITORY
         if [ "$?" -eq 0 ]l then
           echo "status=success" >> "$GITHUB_OUTPUT"
         else
           echo "status=failure" >> "$GITHUB_OUTPUT"
         fi
       shell: bash
+      env:
+      NEXUS_USERNAME: ${{ inputs.nexus_username }}
+      NEXUS_PASSWORD: ${{ inputs.nexus_password }}
+      NEXUS_SERVER: ${{ inputs.nexus_server }}
+      NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
+      FILE_EXTENSION: ${{ inputs.file_extenstion }}
+      DIRECTORY: ${{ inputs.directory }}
+      REPOSITORY_FORMAT: ${{ inputs.repository_format }}
