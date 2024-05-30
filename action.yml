@@ -79,7 +79,14 @@ runs:
       id: nexus-upload
       run: |
         NEXUS_URL="https://$NEXUS_SERVER/repository/$NEXUS_REPOSITORY"
-        ./nexus-upload.sh -s "$NEXUS_URL"
+        SCRIPT_FLAGS=""
+        if [ -z "$FILE_EXTENSION" ]; then
+          SCRIPT_FLAGS="$SCRIPT_FLAGS -e $FILE_EXTENSION"
+        fi
+        if [ -z "$DIRECTORY" ]; then
+          SCRIPT_FLAGS="$SCRIPT_FLAGS -d $DIRECTORY"
+        fi
+        ./nexus-upload.sh -s "$NEXUS_URL" $SCRIPT_FLAGS
         if [ "$?" -eq 0 ]l then
           echo "status=success" >> "$GITHUB_OUTPUT"
         else
