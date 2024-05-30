@@ -23,4 +23,4 @@ jobs:
           nexus_repository: datasets
           repository_format: raw # Optional
           file_extension: txt # Optional
-          upload_directory: files # Optional
+          directory: files # Optional

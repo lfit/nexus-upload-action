@@ -78,7 +78,8 @@ runs:
     - name: "Uploading to Nexus"
       id: nexus-upload
       run: |
-        ./nexus-upload.sh -u https://$NEXUS_SERVER/repository/$NEXUS_REPOSITORY
+        NEXUS_URL="https://$NEXUS_SERVER/repository/$NEXUS_REPOSITORY"
+        ./nexus-upload.sh -s "$NEXUS_URL"
         if [ "$?" -eq 0 ]l then
           echo "status=success" >> "$GITHUB_OUTPUT"
         else
