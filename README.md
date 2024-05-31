@@ -38,7 +38,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  upload-files:
   runs-on: ubuntu-latest
   steps:
     - uses: actions/checkout@v4
