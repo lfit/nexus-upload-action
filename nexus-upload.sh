@@ -124,7 +124,7 @@ fi
 
 # Convert separate parameters (if specified) into NEXUS_URL variable
 if [[ -n ${NEXUS_SERVER+x} ]] && [[ -n ${NEXUS_REPOSITORY+x} ]]; then
-    NEXUS_URL="https://$NEXUS_SERVER/repository/$NEXUS_REPOSITORY"
+    NEXUS_URL="https://$NEXUS_SERVER/repository/$NEXUS_REPOSITORY/"
 fi
 
 if [ -z ${NEXUS_URL+x} ]; then
