@@ -103,7 +103,7 @@ shift "$((OPTIND -1))"   # Discard the options
 
 # Gather files to upload into an array
 # (note: does not traverse directories recursively)
-mapfile -t UPLOAD_FILES_ARRAY < <(find "$DIRECTORY" -name "*.$FILE_EXTENSION" -maxdepth 0 -type f -print )
+mapfile -t UPLOAD_FILES_ARRAY < <(find "$UPLOAD_DIRECTORY" -name "*$FILE_EXTENSION" -maxdepth 1 -type f -print)
 
 if [ "${#UPLOAD_FILES_ARRAY[@]}" -ne 0 ]; then
     echo "Files found to upload: ${#UPLOAD_FILES_ARRAY[@]}"
@@ -113,7 +113,11 @@ else
     echo "Error: no files found to process matching pattern"
     CURRENT_DIRECTORY=$(pwd)
     echo "Listing files in current directory: $CURRENT_DIRECTORY"
-    ls
+    ls -1
+    if [ -d "$UPLOAD_DIRECTORY" ]; then
+        echo "Listing files in upload directory: $UPLOAD_DIRECTORY"
+        ls -1 "$UPLOAD_DIRECTORY"
+    fi
     FAILURES=$((FAILURES+1))
     transfer_report
 fi
