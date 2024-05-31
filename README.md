@@ -19,7 +19,10 @@ Relies on the script located in the repository here:
 
 - file_extension
 - directory
+<!--
+  # May be superfluous parameter
 - repository_format
+  -->
 
 **Outputs:**
 
@@ -49,8 +52,12 @@ jobs:
       nexus_repository: datasets
       file_extension: txt # Optional
       directory: files # Optional
-      repository_format: raw # Optional
 ```
+
+<!--
+      # Removed from the above console output
+      repository_format: raw # Not implemented yet (may be superfluous)
+-->
 
 <!--
 [comment]: # SPDX-License-Identifier: Apache-2.0
