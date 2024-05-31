@@ -111,7 +111,11 @@ if [ "${#UPLOAD_FILES_ARRAY[@]}" -ne 0 ]; then
     # echo "${UPLOAD_FILES_ARRAY[@]}"  # Uncomment for debugging
 else
     echo "Error: no files found to process matching pattern"
-    exit 1
+    CURRENT_DIRECTORY=$(pwd)
+    echo "Listing files in current directory: $CURRENT_DIRECTORY"
+    ls
+    FAILURES=$((FAILURES+1))
+    transfer_report
 fi
 
 # Convert separate parameters (if specified) into NEXUS_URL variable
