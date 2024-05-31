@@ -17,8 +17,8 @@ Relies on the script located in the repository here:
 
 **Optional inputs:**
 
-- filename_suffix
 - directory
+- filename_suffix
 <!--
   # May be superfluous parameter
 - repository_format
@@ -50,8 +50,8 @@ jobs:
       nexus_username: admin
       nexus_password: ${{ secrets.nexus_password }} # Repository secret
       nexus_repository: datasets
-      filename_suffix: txt # Optional
       directory: files # Optional
+      filename_suffix: txt # Optional
 ```
 
 <!--
