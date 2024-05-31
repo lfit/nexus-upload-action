@@ -22,5 +22,5 @@ jobs:
           nexus_password: ${{ secrets.nexus_password }} # Repository secret
           nexus_repository: datasets
           upload_directory: files # Optional
-          file_extension: txt # Optional
+          filename_suffix: .txt # Optional
           # repository_format: raw # Not implemented yet
