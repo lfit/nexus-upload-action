@@ -14,13 +14,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: "Create test file to upload"
+        run: |
+          # if necessary, create folder and file to upload
+          if [ ! -d files ]; then
+            mkdir files
+          fi
+          DATETIME=$(date '+%Y%m%d-%H%M')
+          echo "Test file $DATETIME" > "files/upload-$DATETIME.txt"
+
       - name: "Nexus Upload"
-        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.0.14
+        id: nexus-upload
+        # ToDo: change/update the line below when testing is completed
+        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.0.30
         with:
           nexus_server: nexus3.o-ran-sc.org
           nexus_username: admin
           nexus_password: ${{ secrets.nexus_password }} # Repository secret
-          nexus_repository: datasets
+          nexus_repository: testing
+          upload_directory: files
           filename_suffix: .txt # Optional
-          upload_directory: files # Optional
-          # repository_format: raw # Not implemented yet
+          # Not implemented
+          # repository_format: raw
+
+      - name: "Report results"
+        run: |
+          # Report results
+          echo "ERRORS: ${{ steps.nexus-upload.outputs.ERRORS }}"
+          echo "SUCCESSES: ${{ steps.nexus-upload.outputs.SUCCESSES }}"
+          echo "FAILURES: ${{ steps.nexus-upload.outputs.FAILURES }}"
+        env:
+          ERRORS: ${{ steps.nexus-upload.outputs.ERRORS }}
+          SUCCESSES: ${{ steps.nexus-upload.outputs.SUCCESSES }}
+          FAILURES: ${{ steps.nexus-upload.outputs.FAILURES }}

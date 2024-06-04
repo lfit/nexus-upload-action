@@ -6,106 +6,82 @@ name: "Nexus Upload"
 description: "Nexus Upload Action"
 
 inputs:
-  nexus_username:
+  NEXUS_USERNAME:
     description: "Nexus username"
     required: true
-  nexus_password:
-    description: "Nexus user password"
+  NEXUS_PASSWORD:
+    description: "Nexus password"
     required: true
-  nexus_server:
-    description: "Nexus server name"
+  NEXUS_SERVER:
+    description: "Nexus server"
     required: true
-  nexus_repository:
-    description: "Nexus repository name"
+  NEXUS_REPOSITORY:
+    description: "Nexus repository"
     required: true
-  filename_suffix:
+  UPLOAD_DIRECTORY:
+    description: "Directory containing files to upload"
+    required: true
+  FILENAME_SUFFIX:
     description: "File extension to match"
     required: false
-  upload_directory:
-    description: "Directory containing files to upload"
-    required: false
-  # Not implemented yet, this parameter may be superfluous
+
+  # Not implemented yet; repository_format may be superfluous
+  # We might need it in future, so leaving a reminder here
   # repository_format:
   #   description: "Nexus repository format"
   #   required: false
 
 outputs:
-  successes:
-    description: "Number of successful uploads"
-    value: ${{ steps.nexus-upload.outputs.successes }}
-  failures:
-    description: "Number of failed uploads"
-    value: ${{ steps.nexus-upload.outputs.failures }}
-  errors:
+  ERRORS:
     description: "Occurence of errors [true|false]"
-    value: ${{ steps.nexus-upload.outputs.errors }}
+    value: ${{ steps.nexus-upload.outputs.ERRORS }}
+  SUCCESSES:
+    description: "Number of successful uploads"
+    value: ${{ steps.nexus-upload.outputs.SUCCESSES }}
+  FAILURES:
+    description: "Number of failed uploads"
+    value: ${{ steps.nexus-upload.outputs.FAILURES }}
 
 runs:
   using: "composite"
   steps:
-    - name: "Set GitHub Path"
+    - name: "Set GitHub Action path"
       run: |
-        # Set $GITHUB_ACTION_PATH to GITHUB_PATH
+        # Write GITHUB_ACTION_PATH to GITHUB_PATH
         echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
       shell: bash
       env:
         GITHUB_ACTION_PATH: ${{ github.action_path }}
 
-    # - name: "Retrieve shell script"
-    #   run: |
-    #     wget \
-    #       https://raw.githubusercontent.com/lfit/releng-nexus-upload/main/nexus-upload.sh
-    #     chmod a+x ./nexus-upload.sh
-    #   shell: bash
-    #   env:
-    #     GITHUB_ACTION_PATH: ${{ github.action_path }}
-
-    - name: "Display inputs"
-      run: |
-        # Echo working variables to console
-        echo "Nexus username: $NEXUS_USERNAME"
-        echo "Nexus server: $NEXUS_SERVER"
-        echo "Nexus repository: $NEXUS_REPOSITORY"
-        if [ -n "$UPLOAD_DIRECTORY" ]; then
-          echo "Upload directory: $UPLOAD_DIRECTORY"
-        fi
-        if [ -n "$FILENAME_SUFFIX" ]; then
-          echo "Filename suffix: *$FILENAME_SUFFIX"
-        fi
-        # No implemented yet; may be superflouous
-        # if [ -n "$REPOSITORY_FORMAT" ]; then
-        #   echo "Repository format: $REPOSITORY_FORMAT"
-        # fi
+    - name: "Writing cURL configuration file"
       shell: bash
-      env:
-        NEXUS_USERNAME: ${{ inputs.nexus_username }}
-        NEXUS_PASSWORD: ${{ inputs.nexus_password }}
-        NEXUS_SERVER: ${{ inputs.nexus_server }}
-        NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
-        UPLOAD_DIRECTORY: ${{ inputs.upload_directory }}
-        FILENAME_SUFFIX: ${{ inputs.filename_suffix }}
-        # REPOSITORY_FORMAT: ${{ inputs.repository_format }}
+      # yamllint disable-line rule:line-length
+      run: |
+        # Writing cURL configuration file
+        echo "machine ${{ inputs.NEXUS_SERVER }} > .netrc
+        echo "  login ${{ inputs.NEXUS_USERNAME }} >> .netrc
+        echo "  password ${{ inputs.NEXUS_PASSWORD }}" >> .netrc
+        echo "machine ${{ inputs.NEXUS_SERVER }} login ${{ inputs.NEXUS_USERNAME }} password ***"
 
-    - name: "Uploading to Nexus"
+    - name: "Uploading files to Nexus"
       id: nexus-upload
-      run: |
-        # Upload to Nexus
-        NEXUS_URL="https://$NEXUS_SERVER/repository/$NEXUS_REPOSITORY"
-        SCRIPT_FLAGS=""
-        if [ -n "$FILENAME_SUFFIX" ]; then
-          SCRIPT_FLAGS="$SCRIPT_FLAGS -e $FILENAME_SUFFIX"
-        fi
-        if [ -n "$UPLOAD_DIRECTORY" ]; then
-          SCRIPT_FLAGS="$SCRIPT_FLAGS -d $UPLOAD_DIRECTORY"
-        fi
-        echo "Running: nexus-upload.sh -s $NEXUS_URL $SCRIPT_FLAGS"
-        source nexus-upload.sh -s "$NEXUS_URL" $SCRIPT_FLAGS
       shell: bash
-      env:
-        NEXUS_USERNAME: ${{ inputs.nexus_username }}
-        NEXUS_PASSWORD: ${{ inputs.nexus_password }}
-        NEXUS_SERVER: ${{ inputs.nexus_server }}
-        NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
-        UPLOAD_DIRECTORY: ${{ inputs.upload_directory }}
-        FILENAME_SUFFIX: ${{ inputs.filename_suffix }}
-        # REPOSITORY_FORMAT: ${{ inputs.repository_format }}
+      run: |
+        # Uploading files to Nexus server
+        if [ -z ${{ inputs.FILENAME_SUFFIX }} ]; then
+          nexus-upload.sh -r ${{ inputs.NEXUS_REPOSITORY }} -d ${{ inputs.UPLOAD_DIRECTORY }}
+        else
+          # Matching files by file extension is an optional argument
+          nexus-upload.sh -r ${{ inputs.NEXUS_REPOSITORY }} \
+            -d ${{ inputs.UPLOAD_DIRECTORY }} -e ${{ inputs.FILENAME_SUFFIX }}
+        fi
+        # shellcheck disable=SC2129
+        echo "ERRORS=$ERRORS" >> "$GITHUB_OUTPUT"
+        echo "SUCCESSES=$SUCCESSES" >> "$GITHUB_OUTPUT"
+        echo "FAILURES=$FAILURES" >> "$GITHUB_OUTPUT"
+
+    - name: "Removing cURL configuration file"
+      shell: bash
+      run: |
+        # Removing cURL configuration file
+        rm .netrc
