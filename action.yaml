@@ -1,0 +1,256 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2024 The Linux Foundation <matthew.watkins@linuxfoundation.org>
+
+name: "Nexus Upload"
+description: "Nexus Upload Action"
+
+inputs:
+  NEXUS_USERNAME:
+    description: "Nexus username"
+    required: true
+  NEXUS_PASSWORD:
+    description: "Nexus password"
+    required: true
+  NEXUS_SERVER:
+    description: "Nexus server"
+    required: true
+  NEXUS_REPOSITORY:
+    description: "Nexus repository"
+    required: true
+  UPLOAD_DIRECTORY:
+    description: "Directory containing files to upload"
+    required: true
+  FILENAME_SUFFIX:
+    description: "File extension to match"
+    required: false
+    default: 'false'
+    options:
+    - true
+    - false
+  TESTING:
+    description: "Boolean"
+    required: false
+    default: 'false'
+    options:
+      - true
+      - false
+
+  # Not implemented yet; repository_format may be superfluous
+  # We might need it in future, so leaving a reminder here
+  # repository_format:
+  #   description: "Nexus repository format"
+  #   required: false
+
+outputs:
+  ERRORS:
+    description: "Occurence of errors [true|false]"
+    value: ${{ steps.nexus-upload.outputs.errors }}
+  SUCCESSES:
+    description: "Number of successful uploads"
+    value: ${{ steps.nexus-upload.outputs.successes }}
+  FAILURES:
+    description: "Number of failed uploads"
+    value: ${{ steps.nexus-upload.outputs.failures }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Set GitHub Action path"
+      run: |
+        # Write GITHUB_ACTION_PATH to GITHUB_PATH
+        echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+
+    - name: "Writing cURL configuration file"
+      shell: bash
+      # yamllint disable-line rule:line-length
+      run: |
+        # Writing cURL configuration file
+        echo "machine ${{ inputs.NEXUS_SERVER }} > .netrc
+        echo "  login ${{ inputs.NEXUS_USERNAME }} >> .netrc
+        echo "  password ${{ inputs.NEXUS_PASSWORD }}" >> .netrc
+        echo "machine ${{ inputs.NEXUS_SERVER }} login ${{ inputs.NEXUS_USERNAME }} password ***"
+
+    - name: "Uploading files to Nexus"
+      id: nexus-upload
+      shell: bash
+      run: |
+        # Uploading files to Nexus
+        #SHELLCODESTART
+        #!/usr/bin/env bash
+
+        # Uncomment to enable debugging
+        # set -vx
+
+        CURL_CONFIG=".netrc"
+        # Count file upload successes/failures
+        successes="0"; failures="0"
+
+        # Functions
+
+        show_help() {
+            # Command usage help
+            cat << EOF
+        Usage: ${0##*/} [-h] -r repository -d directory [-e file extension]
+            -h  display this help and exit
+            -r  remote repository name (mandatory)
+            -d  local directory of files to upload (mandatory)
+            -e  match file extension (optional)
+        EOF
+        }
+
+        error_help() {
+            show_help >&2
+            exit 1
+        }
+
+        status_report() {
+            if [ "$failures" -eq 0 ]; then
+                errors="false"; EXIT_STATUS="0"
+            else
+                errors="true"; EXIT_STATUS="1"
+            fi
+
+            # Print a helpful status summary
+            echo "Errors: $errors   Successes: $successes   Failures: $failures"
+
+            if [ -n "$GITHUB_OUTPUT" ]; then
+              echo "Running as GitHub action; setting output values"
+              # shellcheck disable=SC2129
+              echo "errors=$errors" >> "$GITHUB_OUTPUT"
+              echo "successes=$successes" >> "$GITHUB_OUTPUT"
+              echo "failures=$failures" >> "$GITHUB_OUTPUT"
+            fi
+            exit "$EXIT_STATUS"
+        }
+
+        curl_upload() {
+            FILE="$1"
+            echo "Sending: ${FILE}"
+            if ("$CURL" --no-progress-meter --fail --netrc-file "$CURL_CONFIG" \
+                --upload-file "$FILE" "$nexus_url"); then #> /dev/null 2>&1
+                successes=$((successes+1))
+            else
+                failures=$((failures+1))
+            fi
+        }
+
+        process_files() {
+            for FILE in "${UPLOAD_FILES_ARRAY[@]}"; do
+                curl_upload "$FILE"
+            done
+        }
+
+        upload_start() {
+
+            CURL=$(which curl)
+            if [ ! -x "$CURL" ];then
+                echo "cURL was not found in your PATH"; exit 1
+            fi
+
+            while getopts hr:d:e: opt; do
+                case $opt in
+                    r)  nexus_repository="$OPTARG"
+                        ;;
+                    d)  upload_directory="$OPTARG"
+                        if [ ! -d "$upload_directory" ]; then
+                            echo "Specified upload directory not found: $upload_directory"
+                            CURRENT_DIR=$(pwd)
+                            echo "Current directory: $CURRENT_DIR"
+                            ls; ls files
+                            exit 1
+                        fi
+                        ;;
+                    e)  file_extension="$OPTARG" # Not mandatory
+                        ;;
+
+                    # Not implemented; this parameter may be superfluous
+                    # repository_format
+
+                    h|?)
+                        show_help
+                        exit 0
+                        ;;
+                    *)
+                        error_help
+                    esac
+            done
+            shift "$((OPTIND -1))" # Discard the options
+
+            # Check for required parameters and setup
+            if [ -z ${nexus_repository+x} ]; then
+                echo "Supplying the repository is mandatory"
+                errors="true"
+            fi
+            if [ -z ${upload_directory+x} ]; then
+                echo "Supplying the upload directory is mandatory"
+                errors="true"
+            fi
+            if [ ! -f "$CURL_CONFIG" ]; then
+                echo "cURL configuration file was not found ($CURL_CONFIG)"
+                errors="true"
+            else
+                # The server name is extracted from the configuration file
+                NEXUS_SERVER=$(grep machine "$CURL_CONFIG" | awk '{print $2}')
+            fi
+            if [ "$errors" = "true" ];then
+                failures=$((failures+1))
+                status_report
+            fi
+
+            # Gather files to upload into an array (does not traverse directories recursively)
+            mapfile -t UPLOAD_FILES_ARRAY \
+             < <(find "$upload_directory" -name "*$file_extension" -maxdepth 1 -type f -print)
+
+            if [ "${#UPLOAD_FILES_ARRAY[@]}" -ne 0 ]; then
+                echo "Number of files to upload: ${#UPLOAD_FILES_ARRAY[@]}"
+            else
+                echo "No files found matching pattern: $upload_directory/*$file_extension"
+                failures=$((failures+1))
+                status_report
+            fi
+
+            # Combine separate parameters into nexus_url
+            if [[ -n ${NEXUS_SERVER+x} ]] && [[ -n ${nexus_repository+x} ]]; then
+                nexus_url="https://$NEXUS_SERVER/repository/$nexus_repository/"
+            else
+                echo "A required parameter was not supplied"
+                echo "NEXUS_SERVER: $NEXUS_SERVER"
+                echo "nexus_repository: $nexus_repository"; exit 1
+            fi
+
+            # Example .netrc configuration file format (indentation matters)
+            # machine [nexus_server]
+            #   login [nexus_username]
+            #   password [nexus_password]
+
+            echo "Attempting uploads to: $nexus_url"
+            process_files
+            status_report
+        }
+
+        if [ "$testing" = "true" ]; then
+          if [ ! -d "$upload_directory" ]; then
+            mkdir "$upload_directory"
+          fi
+          DATETIME=$(date '+%Y%m%d-%H%M')
+          echo "Test file $DATETIME" > "$upload_directory/upload-$DATETIME.txt"
+        fi
+
+        # Main script entry point
+        if [ -z filename_suffix ]; then
+          upload_start -r "$nexus_repository" -d "$upload_directory"
+        else
+          # Matching files by extension is optional; pass it when set
+          upload_start -r "$nexus_repository" -d "$upload_directory" -e "$filename_suffix"
+        fi
+        #SHELLCODEEND
+
+    - name: "Removing cURL configuration file"
+      shell: bash
+      run: |
+        # Removing cURL configuration file
+        rm .netrc
