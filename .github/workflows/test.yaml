@@ -1,0 +1,58 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2024 The Linux Foundation <matthew.watkins@linuxfoundation.org>
+
+name: "Test Nexus Upload"
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+
+jobs:
+  upload-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Set GitHub Action path"
+        run: |
+          # Write GITHUB_ACTION_PATH to GITHUB_PATH
+          echo "GITHUB_ACTION_PATH: $GITHUB_ACTION_PATH"
+          echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
+        shell: bash
+        env:
+          GITHUB_ACTION_PATH: ${{ github.action_path }}
+
+      - name: "Create test content folder/file"
+        run: |
+          # if necessary, create folder and file to upload
+          pwd
+          ls
+          if [ ! -d files ]; then
+            mkdir files
+          fi
+          ls
+          DATETIME=$(date '+%Y%m%d-%H%M')
+          echo "Test file $DATETIME" > "files/upload-$DATETIME.txt"
+          ls files
+
+      - name: "Upload test file to Nexus"
+        id: nexus-upload
+        # ToDo: change/update the line below when testing is completed
+        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.1.0
+        with:
+          nexus_server: nexus3.o-ran-sc.org
+          nexus_username: admin
+          nexus_password: ${{ secrets.nexus_password }} # Repository secret
+          nexus_repository: testing
+          upload_directory: files
+          filename_suffix: .txt # Optional
+          # Not implemented
+          # repository_format: raw
+
+      - name: "Report results"
+        run: |
+          # Report results
+          echo "errors: ${{ steps.nexus-upload.outputs.errors }}"
+          echo "successes: ${{ steps.nexus-upload.outputs.successes }}"
+          echo "failures: ${{ steps.nexus-upload.outputs.failures }}"
