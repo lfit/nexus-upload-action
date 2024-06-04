@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2024 The Linux Foundation <matthew.watkins@linuxfoundation.org>
+
+# This file defines the required input variables to the test.sh script
+# It should specify all the requirements of the GitHub Actions YAML file
+
+# Need to be obtained from local cURL .netrc configuration file
+# nexus_server
+# nexus_username
+# nexus_password
+
+# Define other required variables here
+DATETIME=$(date '+%Y%m%d-%H%M')
+export upload_directory="files"
+export filename_suffix=".txt"
+export nexus_repository="testing"
+
+# Create test file to upload
+if [ ! -d "$upload_directory" ]; then
+	mkdir "$upload_directory"
+	echo "Created sample upload folder: $upload_directory"
+fi
+
+# Clean directory of any previous auto-generated content
+find "$upload_directory" -name upload-*.txt -type f -delete
+
+if (echo "Test file $DATETIME" > "$upload_directory/upload-$DATETIME.txt"); then
+	echo "Created test file to upload: $upload_directory/upload-$DATETIME.txt"
+fi
