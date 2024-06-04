@@ -1,63 +1,79 @@
-# Nexus Upload
+# Sonatype Nexus File Upload
 
-GitHub Action to upload files to Sonatype Nexus Repository servers.
+Automate the upload of files to Sonatype Nexus servers in GitHub
 
-Relies on the script located in the repository here:
+- [Source Code on GitHub](https://github.com/ModeSevenIndustrialSolutions/nexus-upload-action)
 
-<https://github.com/lfit/releng-nexus-upload>
+## Sonatype Nexus Upload GitHub Action
 
-## inputs/Outputs
+This repository contains a GitHub Action to upload files to Sonatype Nexus servers.
 
-**Required inputs:**
+The action looks for a cURL configuration file in the current working directory called:
+
+```console
+.netrc
+```
+
+This should contain the Nexus server name, along with credentials providing write access to the repository.
+
+Here's an example of the configuration file content/format:
+
+```console
+machine [nexus-server]
+  login [nexus-username]
+  password [nexus-password]
+```
+
+*IMPORTANT NOTE: respect the indentation of the second and third lines in the example above*
+
+A local folder containing the files to upload is mandatory. If no file extensions are specified,
+then the default behaviour is wildcard (\*) file matching. You can prevent this, by specifying
+a file suffix/extension restricting the files to be uploaded to a subset of the folder content.
+
+### Action Inputs/Outputs
+
+**Mandatory Inputs**
 
 - nexus_username
 - nexus_password
 - nexus_server
 - nexus_repository
+- upload_directory
 
-**Optional inputs:**
+**Optional Inputs**
 
-- directory
 - filename_suffix
+- testing
+
+When testing is set to "true", the upload directory and a sample TXT file with a date/time stamp
+will automatically be created for upload. This prevents the need to create test data or add files
+directly to this repository.
+
 <!--
   # May be superfluous parameter
 - repository_format
   -->
 
-**Outputs:**
+**Outputs**
 
-- upload-status [ success | failure ]
+- errors [ true | false ]
+- successes [ numeric value ]
+- failures [ numeric value ]
 
-## Usage Example
+### Usage Example
 
-```yaml
----
-name: "Nexus Upload"
+An example workflow has been provided that can be invoked on demand:
 
-on:
-  workflow_dispatch:
+[.github/workflows/test.yaml](https://github.com/ModeSevenIndustrialSolutions/nexus-upload-action/blob/main/.github/workflows/test.yaml)
 
-jobs:
-  upload-files:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
+### Further Testing
 
-    - name: "Nexus Upload"
-      uses: ModeSevenIndustrialSolutions/nexus-upload-action@v1
-      with:
-      nexus_server: nexus3.o-ran-sc.org
-      nexus_username: admin
-      nexus_password: ${{ secrets.nexus_password }} # Repository secret
-      nexus_repository: datasets
-      directory: files # Optional
-      filename_suffix: txt # Optional
-```
-
-<!--
-      # Removed from the above console output
-      repository_format: raw # Not implemented yet (may be superfluous)
--->
+A shell script has also been provided, along with a  setup file. The shell script acts as
+a thin wrapper, extracting the functional shell code from the YAML file, then running it.
+The supplementary setup file provides some required parameters and generates a test folder
+containing a text file to upload. You still need to create a .netrc file to configure the
+environment with the nexus server name and user credentials providing write access to the
+remote repository.
 
 <!--
 [comment]: # SPDX-License-Identifier: Apache-2.0
