@@ -18,12 +18,13 @@ inputs:
   nexus_repository:
     description: "Nexus repository name"
     required: true
-  filename_suffix:
-    description: "File extension to match"
-    required: false
   upload_directory:
     description: "Directory containing files to upload"
     required: false
+  filename_suffix:
+    description: "File extension to match"
+    required: false
+
   # Not implemented yet, this parameter may be superfluous
   # repository_format:
   #   description: "Nexus repository format"
@@ -79,7 +80,7 @@ runs:
       shell: bash
       env:
         NEXUS_USERNAME: ${{ inputs.nexus_username }}
-        NEXUS_PASSWORD: ${{ inputs.nexus_password }}
+        # NEXUS_PASSWORD: ${{ inputs.nexus_password }} # Do not leak into the environment
         NEXUS_SERVER: ${{ inputs.nexus_server }}
         NEXUS_REPOSITORY: ${{ inputs.nexus_repository }}
         UPLOAD_DIRECTORY: ${{ inputs.upload_directory }}

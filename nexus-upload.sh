@@ -6,9 +6,7 @@
 # Uncomment to enable debugging
 # set -vx
 
-# Initialise variables
-UPLOAD_DIRECTORY="."
-FILE_EXTENSION=""
+CURL_CONFIG="netrc"
 # Count file upload successes/failures
 SUCCESSES="0"; FAILURES="0"
 
@@ -38,6 +36,11 @@ error_help() {
     exit 1
 }
 
+removeConfig() {
+    echo "Removing cURL/server configuration: $CURL_CONFIG"
+    rm $CURL_CONFIG
+}
+
 transfer_report() {
     echo "Successes: $SUCCESSES   Failures: $FAILURES"
     # Export allows these values to be used later
@@ -53,7 +56,9 @@ curl_upload() {
     FILE="$1"
     echo "Sending: ${FILE}"
     # echo "Running: $CURL --fail [CREDENTIALS] --upload-file $FILE $NEXUS_URL"
-    if ("$CURL" --fail -u "$CREDENTIALS" --upload-file "$FILE" "$NEXUS_URL"); then #> /dev/null 2>&1
+    # if ("$CURL" --fail --netrc-file ".netcrc" \
+    if ("$CURL" --fail --netrc-file "$CURL_CONFIG" \
+        --upload-file "$FILE" "$NEXUS_URL"); then #> /dev/null 2>&1
         SUCCESSES=$((SUCCESSES+1))
     else
         FAILURES=$((FAILURES+1))
@@ -72,7 +77,6 @@ CURL=$(which curl)
 if [ ! -x "$CURL" ];then
     echo "CURL was not found in your PATH"; exit 1
 fi
-
 
 while getopts hu:p:s:d:e: opt; do
     case $opt in
@@ -153,10 +157,14 @@ if [ -z ${NEXUS_PASSWORD+x} ]; then
     fi
 fi
 
-CREDENTIALS="$NEXUS_USERNAME:$NEXUS_PASSWORD"
+# No longer using credentials supplied on the command-line
+# CREDENTIALS="$NEXUS_USERNAME:$NEXUS_PASSWORD"
 
 # Main script entry point
 
-echo "Uploading to: $NEXUS_URL"
+echo "Creating cURL configuration: $CURL_CONFIG"
+echo "machine $NEXUS_SERVER login $NEXUS_USERNAME password $NEXUS_PASSWORD" > "$CURL_CONFIG"
+echo "Attempting uploads to: $NEXUS_URL"
 process_files
+removeConfig # Prevent subsequent reading of credentials
 transfer_report

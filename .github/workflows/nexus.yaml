@@ -15,12 +15,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: "Nexus Upload"
-        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.0.14
+        # yamllint disable-line rule:truthy
+        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.0.15 # ToDo: change/update when testing complete
         with:
           nexus_server: nexus3.o-ran-sc.org
           nexus_username: admin
           nexus_password: ${{ secrets.nexus_password }} # Repository secret
           nexus_repository: datasets
-          filename_suffix: .txt # Optional
           upload_directory: files # Optional
+          filename_suffix: .txt # Optional
           # repository_format: raw # Not implemented yet
