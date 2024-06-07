@@ -34,10 +34,12 @@ The script looks for a cURL configuration file in the current working directory 
 
 This should contain the Nexus server name, and a username and password providing write access to the repository.
 
-Here's an example of how to create the required configuration file:
+Here's an example of the required file content:
 
 ```console
-machine [nexus-server] login [nexus-username] password [nexus-password] > .netrc
+machine [nexus-server]
+  login [nexus-username]
+  password [nexus-password]
 ```
 
 A local folder containing files to upload is mandatory with the "-d" flag. If no file extensions are

@@ -26,7 +26,7 @@ jobs:
       - name: "Nexus Upload"
         id: nexus-upload
         # ToDo: change/update the line below when testing is completed
-        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.0.30
+        uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.0.31
         with:
           nexus_server: nexus3.o-ran-sc.org
           nexus_username: admin
