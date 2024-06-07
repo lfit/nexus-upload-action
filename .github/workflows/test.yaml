@@ -14,15 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - name: "Set GitHub Action path"
-      #   run: |
-      #     # Write GITHUB_ACTION_PATH to GITHUB_PATH
-      #     echo "GITHUB_ACTION_PATH: $GITHUB_ACTION_PATH"
-      #     echo "$GITHUB_ACTION_PATH" >> "$GITHUB_PATH"
-      #   shell: bash
-      #   env:
-      #     GITHUB_ACTION_PATH: ${{ github.action_path }}
-
       - name: "Upload test file to Nexus"
         id: nexus-upload
         # ToDo: change/update the line below when testing is completed
@@ -33,8 +24,8 @@ jobs:
           nexus_password: ${{ secrets.nexus_password }} # Repository secret
           nexus_repository: testing
           upload_directory: files
-          filename_suffix: .txt  # Optionally matches files with text as suffix
-          testing: true          # Optionally creates upload directory and file
+          filename_suffix: .txt # Optionally matches files with text as suffix
+          testing: true # Optionally creates upload directory and file
           # Not implemented
           # repository_format: raw
 

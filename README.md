@@ -24,7 +24,7 @@ machine [nexus-server]
   password [nexus-password]
 ```
 
-*IMPORTANT NOTE: respect the indentation of the second and third lines in the example above*
+*NOTE: respect the indentation of the second and third lines in the example above*
 
 A local folder containing the files to upload is mandatory. If no file extensions are specified,
 then the default behaviour is wildcard (\*) file matching. You can prevent this, by specifying
@@ -45,9 +45,9 @@ a file suffix/extension restricting the files to be uploaded to a subset of the 
 - filename_suffix
 - testing
 
-When testing is set to "true", the upload directory and a sample TXT file with a date/time stamp
-will automatically be created for upload. This prevents the need to create test data or add files
-directly to this repository.
+When testing is set to "true" an upload directory and sample text file (with a date/time stamp)
+will automatically be created. This prevents the need to create test data or add files directly
+to your repository when testing the action.
 
 <!--
   # May be superfluous parameter
@@ -68,12 +68,11 @@ An example workflow has been provided that can be invoked on demand:
 
 ### Further Testing
 
-A shell script has also been provided, along with a  setup file. The shell script acts as
+A shell script has also been provided, along with a setup file. The shell script acts as
 a thin wrapper, extracting the functional shell code from the YAML file, then running it.
-The supplementary setup file provides some required parameters and generates a test folder
-containing a text file to upload. You still need to create a .netrc file to configure the
-environment with the nexus server name and user credentials providing write access to the
-remote repository.
+The supplementary setup file provides the required parameters that would otherwise be
+pass as inputs by a workflow. You still need to create a .netrc file to configure the
+environment with the nexus server and credentials providing write access to the repository.
 
 <!--
 [comment]: # SPDX-License-Identifier: Apache-2.0
