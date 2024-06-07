@@ -19,8 +19,8 @@ jobs:
         # ToDo: change/update the line below when testing is completed
         uses: ModeSevenIndustrialSolutions/nexus-upload-action@v0.1.8
         with:
-          nexus_server: nexus3.o-ran-sc.org
-          nexus_username: admin
+          nexus_server: ${{ secrets.nexus_server }}
+          nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }} # Repository secret
           nexus_repository: testing
           upload_directory: files
