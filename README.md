@@ -1,6 +1,6 @@
 # Sonatype Nexus File Upload
 
-Automate the upload of files to Sonatype Nexus servers in GitHub
+Automates the upload of files/artefacts from GitHub Actions to Sonatype Nexus servers
 
 - [Source Code on GitHub](https://github.com/ModeSevenIndustrialSolutions/nexus-upload-action)
 
@@ -24,7 +24,7 @@ machine [nexus-server]
   password [nexus-password]
 ```
 
-*NOTE: respect the indentation of the second and third lines in the example above*
+NOTE: respect the indentation of the second and third lines in the example above
 
 A local folder containing the files to upload is mandatory. If no file extensions are specified,
 then the default behaviour is wildcard (\*) file matching. You can prevent this, by specifying
@@ -32,7 +32,7 @@ a file suffix/extension restricting the files to be uploaded to a subset of the 
 
 ### Action Inputs/Outputs
 
-**Mandatory Inputs**
+#### Mandatory Inputs
 
 - nexus_username
 - nexus_password
@@ -40,10 +40,10 @@ a file suffix/extension restricting the files to be uploaded to a subset of the 
 - nexus_repository
 - upload_directory
 
-**Optional Inputs**
+#### Optional Inputs
 
 - filename_suffix
-- testing
+- testing [true|false]
 
 When testing is set to "true" an upload directory and sample text file (with a date/time stamp)
 will automatically be created. This prevents the need to create test data or add files directly
@@ -54,7 +54,7 @@ to your repository when testing the action.
 - repository_format
   -->
 
-**Outputs**
+#### Outputs
 
 - errors [ true | false ]
 - successes [ numeric value ]
