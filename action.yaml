@@ -6,32 +6,28 @@ name: "Nexus Upload"
 description: "Nexus Upload Action"
 
 inputs:
-  nexus_username:
+  NEXUS_USERNAME:
     description: "Nexus username"
     required: true
-  nexus_password:
+  NEXUS_PASSWORD:
     description: "Nexus password"
     required: true
-  nexus_server:
+  NEXUS_SERVER:
     description: "Nexus server"
     required: true
-  nexus_repository:
+  NEXUS_REPOSITORY:
     description: "Nexus repository"
     required: true
-  upload_directory:
+  UPLOAD_DIRECTORY:
     description: "Directory containing files to upload"
     required: true
-  filename_suffix:
+  FILENAME_SUFFIX:
     description: "File extension to match"
     required: false
-    default: 'false'
-    options:
-    - true
-    - false
-  testing:
+  TESTING:
     description: "Boolean"
     required: false
-    default: 'false'
+    default: "false"
     options:
       - true
       - false
@@ -43,13 +39,13 @@ inputs:
   #   required: false
 
 outputs:
-  errors:
+  ERRORS:
     description: "Occurence of errors [true|false]"
     value: ${{ steps.nexus-upload.outputs.errors }}
-  successes:
+  SUCCESSES:
     description: "Number of successful uploads"
     value: ${{ steps.nexus-upload.outputs.successes }}
-  failures:
+  FAILURES:
     description: "Number of failed uploads"
     value: ${{ steps.nexus-upload.outputs.failures }}
 
