@@ -43,7 +43,7 @@ a file suffix/extension restricting the files to be uploaded to a subset of the 
 #### Optional Inputs
 
 - filename_suffix
-- testing [true|false]
+- testing [ true | false ]
 
 When testing is set to "true" an upload directory and sample text file (with a date/time stamp)
 will automatically be created. This prevents the need to create test data or add files directly
