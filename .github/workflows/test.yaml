@@ -7,13 +7,6 @@ name: "Test Nexus Upload"
 # yamllint disable-line rule:truthy
 on:
   workflow_dispatch:
-  push:
-    # Only invoked on release tag pushes
-    branches:
-      - "main"
-      - "master"
-    tags:
-      - "v*.*.*"
   pull_request:
     types: [opened, reopened, edited, synchronize]
 
