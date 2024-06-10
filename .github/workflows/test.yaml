@@ -15,8 +15,7 @@ on:
     tags:
       - "v*.*.*"
   pull_request:
-    types:
-      - closed
+    types: [opened, reopened, edited, synchronize]
 
 jobs:
   upload-files:
