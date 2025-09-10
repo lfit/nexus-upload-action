@@ -128,12 +128,12 @@ repos:
           ]
 
   - repo: https://github.com/fsfe/reuse-tool
-    rev: v5.0.2
+    rev: v5.1.1
     hooks:
       - id: reuse
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.9
+    rev: v0.12.12
     hooks:
       - id: ruff
         files: ^(scripts|tests|custom_components)/.+\.py$
