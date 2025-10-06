@@ -100,7 +100,7 @@ repos:
         additional_dependencies: ["tomli"]
 
   - repo: https://github.com/PyCQA/isort
-    rev: 6.0.1
+    rev: 6.1.0
     hooks:
       - id: isort
         args: ["--profile", "black"]
@@ -128,12 +128,12 @@ repos:
           ]
 
   - repo: https://github.com/fsfe/reuse-tool
-    rev: v5.1.1
+    rev: v6.0.0
     hooks:
       - id: reuse
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.2
+    rev: v0.13.3
     hooks:
       - id: ruff
         files: ^(scripts|tests|custom_components)/.+\.py$
